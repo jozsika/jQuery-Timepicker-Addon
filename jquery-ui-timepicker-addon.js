@@ -28,6 +28,7 @@
         minute: 0,
         second: 0,
         ampm: '',
+		altFormattedDate: '',
         formattedDate: '',
         formattedTime: '',
         formattedDateTime: '',
@@ -48,8 +49,15 @@
             minute: 0,
             second: 0,
             timeFormat: 'hh:mm tt',
-            alwaysSetTime: true
+            alwaysSetTime: true,
             //----------------------------
+			locale: {
+				time: 'Time',
+				hour: 'Hour',
+				minute: 'Minute',
+				second: 'Second',
+				chooseTime: 'Choose time'
+			}
         },
 
         //########################################################################
@@ -142,13 +150,13 @@
             if ($dp.find("div#ui-timepicker-div").length == 0) {
                 var html = '<div id="ui-timepicker-div">' +
 						'<dl>' +
-						    '<dt id="ui_tpicker_time_label"' + ((tp_inst.defaults.showTime) ? '' : ' style="display:none;"') + '>Time</dt>' +
+						    '<dt id="ui_tpicker_time_label"' + ((tp_inst.defaults.showTime) ? '' : ' style="display:none;"') + '>' + tp_inst.defaults.locale.time + '</dt>' +
 							'<dd id="ui_tpicker_time"' + ((tp_inst.defaults.showTime) ? '' : ' style="display:none;"') + '></dd>' +
-							'<dt id="ui_tpicker_hour_label"' + ((tp_inst.defaults.showHour) ? '' : ' style="display:none;"') + '>Hour</dt>' +
+							'<dt id="ui_tpicker_hour_label"' + ((tp_inst.defaults.showHour) ? '' : ' style="display:none;"') + '>' + tp_inst.defaults.locale.hour + '</dt>' +
 							'<dd id="ui_tpicker_hour"' + ((tp_inst.defaults.showHour) ? '' : ' style="display:none;"') + '></dd>' +
-							'<dt id="ui_tpicker_minute_label"' + ((tp_inst.defaults.showMinute) ? '' : ' style="display:none;"') + '>Minute</dt>' +
+							'<dt id="ui_tpicker_minute_label"' + ((tp_inst.defaults.showMinute) ? '' : ' style="display:none;"') + '>' + tp_inst.defaults.locale.minute + '</dt>' +
 							'<dd id="ui_tpicker_minute"' + ((tp_inst.defaults.showMinute) ? '' : ' style="display:none;"') + '></dd>' +
-							'<dt id="ui_tpicker_second_label"' + ((tp_inst.defaults.showSecond) ? '' : ' style="display:none;"') + '>Second</dt>' +
+							'<dt id="ui_tpicker_second_label"' + ((tp_inst.defaults.showSecond) ? '' : ' style="display:none;"') + '>' + tp_inst.defaults.locale.second + '</dt>' +
 							'<dd id="ui_tpicker_second"' + ((tp_inst.defaults.showSecond) ? '' : ' style="display:none;"') + '></dd>' +
 						'</dl>' +
 					'</div>';
@@ -156,7 +164,7 @@
                 $tp = $(html);
 
                 if (tp_inst.defaults.timeOnly == true) { // if we only want time picker
-                    $tp.prepend('<div class="ui-widget-header ui-helper-clearfix ui-corner-all"><div class="ui-datepicker-title">Choose Time</div></div>');
+                    $tp.prepend('<div class="ui-widget-header ui-helper-clearfix ui-corner-all"><div class="ui-datepicker-title">' + tp_inst.defaults.locale.chooseTime + '</div></div>');
                     $dp.find('.ui-datepicker-header, .ui-datepicker-calendar, .ui-datepicker-current').hide();
                 }
 
@@ -265,14 +273,22 @@
         updateDateTime: function(dp_inst, tp_inst) {
             var dt = this.$input.datepicker('getDate');
 
-            if (dt == null)
+            if (dt == null) {
                 this.formattedDate = $.datepicker.formatDate($.datepicker._get(dp_inst, 'dateFormat'), new Date(), $.datepicker._getFormatConfig(dp_inst));
-            else this.formattedDate = $.datepicker.formatDate($.datepicker._get(dp_inst, 'dateFormat'), dt, $.datepicker._getFormatConfig(dp_inst));
+				if (this.$input.datepicker('option', 'altField')) {
+					this.altFormattedDate = $.datepicker.formatDate($.datepicker._get(dp_inst, 'altFormat'), new Date(), $.datepicker._getFormatConfig(dp_inst));
+				}
+			} else {
+				this.formattedDate = $.datepicker.formatDate($.datepicker._get(dp_inst, 'dateFormat'), dt, $.datepicker._getFormatConfig(dp_inst));
+				// Added to handle datepicker's alt format, if present
+				if (this.$input.datepicker('option', 'altField')) {
+					this.altFormattedDate = $.datepicker.formatDate($.datepicker._get(dp_inst, 'altFormat'), dt, $.datepicker._getFormatConfig(dp_inst));
+				}
+			}
 
             if (this.defaults.alwaysSetTime) {
                 this.formattedDateTime = this.formattedDate + ' ' + this.formattedTime;
-            }
-            else {
+            } else {
                 if (dt == null || !tp_inst.timeDefined || tp_inst.timeDefined == false) {
                     this.formattedDateTime = this.formattedDate;
                 }
@@ -281,10 +297,20 @@
                 }
             }
             //-----------------------------
+			// Added to handle datepicker's alt field, if present
+			if (this.$input.datepicker('option', 'altField')) {
+				if (this.defaults.timeOnly == true) {
+					$(this.$input.datepicker('option', 'altField')).val(this.formattedTime);
+				} else {
+					$(this.$input.datepicker('option', 'altField')).val(this.altFormattedDate+' '+this.formattedTime);
+				}
+			}
 
-            if (this.defaults.timeOnly == true)
+            if (this.defaults.timeOnly == true) {
                 this.$input.val(this.formattedTime);
-            else this.$input.val(this.formattedDateTime);
+			} else {
+				this.$input.val(this.formattedDateTime);
+			}
         }
     };
 
