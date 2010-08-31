@@ -146,12 +146,13 @@
             
             /* End Added by Peter Medeiros */
             
-            // Prevent displaying twice
-            if ($dp.find("div#ui-timepicker-div").length == 0) {
+            // Prevent displaying twice, changed to support inline datepickers (am I right here?)
+			if (dp_inst.dpDiv.find('div#ui-timepicker-div').length == 0) {
+			//if ($dp.find("div#ui-timepicker-div").length == 0) {
                 var html = '<div id="ui-timepicker-div">' +
 						'<dl>' +
 						    '<dt id="ui_tpicker_time_label"' + ((tp_inst.defaults.showTime) ? '' : ' style="display:none;"') + '>' + tp_inst.defaults.locale.time + '</dt>' +
-							'<dd id="ui_tpicker_time"' + ((tp_inst.defaults.showTime) ? '' : ' style="display:none;"') + '></dd>' +
+							'<dd class="ui-tpicker-time" id="ui_tpicker_time"' + ((tp_inst.defaults.showTime) ? '' : ' style="display:none;"') + '></dd>' +
 							'<dt id="ui_tpicker_hour_label"' + ((tp_inst.defaults.showHour) ? '' : ' style="display:none;"') + '>' + tp_inst.defaults.locale.hour + '</dt>' +
 							'<dd id="ui_tpicker_hour"' + ((tp_inst.defaults.showHour) ? '' : ' style="display:none;"') + '></dd>' +
 							'<dt id="ui_tpicker_minute_label"' + ((tp_inst.defaults.showMinute) ? '' : ' style="display:none;"') + '>' + tp_inst.defaults.locale.minute + '</dt>' +
@@ -165,7 +166,7 @@
 
                 if (tp_inst.defaults.timeOnly == true) { // if we only want time picker
                     $tp.prepend('<div class="ui-widget-header ui-helper-clearfix ui-corner-all"><div class="ui-datepicker-title">' + tp_inst.defaults.locale.chooseTime + '</div></div>');
-                    $dp.find('.ui-datepicker-header, .ui-datepicker-calendar, .ui-datepicker-current').hide();
+					dp_inst.dpDiv.find('.ui-datepicker-header, .ui-datepicker-calendar, .ui-datepicker-current').hide();
                 }
 
                 tp_inst.hour_slider = $tp.find('#ui_tpicker_hour').slider({ orientation: "horizontal", value: tp_inst.hour, min:0, max: hourMax, step: tp_inst.defaults.stepHour, slide: function(event, ui) { 
@@ -185,11 +186,11 @@
                 		tp_inst.onTimeChange(dp_inst, tp_inst); 
                 	} });
 
-                $dp.find('.ui-datepicker-calendar').after($tp);
-                tp_inst.$timeObj = $('#ui_tpicker_time');
+				// changed to support inline datepickers
+				dp_inst.dpDiv.find('.ui-datepicker-calendar').after($tp);
+				tp_inst.$timeObj = dp_inst.dpDiv.find('.ui-tpicker-time');
 
                 if (dp_inst != null) {
-                  
                     var timeDefined = tp_inst.timeDefined;
 
                     tp_inst.onTimeChange(dp_inst, tp_inst);
